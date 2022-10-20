@@ -1,5 +1,9 @@
 package ru.stepenko.stack.brackets;
 
+import lombok.experimental.UtilityClass;
+import ru.stepenko.stack.StackArrayListImpl;
+import ru.stepenko.stack.StackIsEmptyException;
+
 import java.util.Stack;
 
 /**
@@ -10,6 +14,7 @@ import java.util.Stack;
  * {@link ru.stepenko.stack.brackets.ClosingBracket}
  * {@link ru.stepenko.stack.brackets.PairedBrackets}
  */
+@UtilityClass
 public class BracketsUtils {
 
     private final static String SUCCESS = "Success";
@@ -103,5 +108,57 @@ public class BracketsUtils {
         if (PairedBrackets.CORNER.getBracket().equals("" + open + close)) return true;
         if (PairedBrackets.SQUARE.getBracket().equals("" + open + close)) return true;
         return false;
+    }
+
+    public static boolean checkBracketsSequenceCustomStack(String txt) throws StackIsEmptyException {
+        ru.stepenko.stack.Stack<Character> stack = new StackArrayListImpl<>();
+        for (char c : txt.toCharArray()) {
+            if (isOpenBracket(c)) {
+                stack.push(c);
+                continue;
+            }
+            if (isClosedBracket(c)) {
+                if (stack.isEmpty()) {
+                    return false;
+                } else {
+                    if (isPair(stack.peek(), c)) {
+                        stack.pop();
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+        return stack.isEmpty();
+    }
+
+    public static String checkBracketsCustomStack(String txt) throws StackIsEmptyException {
+        ru.stepenko.stack.Stack<Character> stack = new StackArrayListImpl<>();
+        Stack<Integer> openIndexes = new Stack<>();
+        int index = 0;
+
+        for (char c : txt.toCharArray()) {
+            index++;
+            if (isOpenBracket(c)) {
+                openIndexes.push(index);
+                stack.push(c);
+                continue;
+            }
+            if (isClosedBracket(c)) {
+                if (stack.isEmpty()) {
+                    return String.valueOf(index);
+                } {
+                    if (isPair(stack.peek(), c)) {
+                        openIndexes.pop();
+                        stack.pop();
+                    } else {
+                        return String.valueOf(index);
+                    }
+                }
+            }
+        }
+        if (stack.isEmpty()) return SUCCESS;
+        if (isOpenBracket(stack.peek())) return String.valueOf(openIndexes.peek());
+        return String.valueOf(index);
     }
 }
